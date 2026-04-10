@@ -1,0 +1,22 @@
+{
+  "entities": {
+    "AppConfig": {
+      "title": "App Configuration",
+      "description": "Global application configuration including images",
+      "type": "object",
+      "properties": {
+        "images": {
+          "type": "object",
+          "description": "Map of image keys to URLs"
+        }
+      },
+      "required": ["images"]
+    }
+  },
+  "firestore": {
+    "config/app": {
+      "schema": "AppConfig",
+      "description": "Singleton document for app configuration"
+    }
+  }
+}
