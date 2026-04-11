@@ -157,7 +157,7 @@ const Header = ({
   setIsMobileMenuOpen: (o: boolean) => void,
   searchQuery: string,
   handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void, 
-  setCurrentPage: (p: 'home' | 'about' | 'process' | 'success' | 'contact' | 'industry' | 'service' | 'audit') => void,
+  setCurrentPage: (p: 'home' | 'about' | 'process' | 'success' | 'contact' | 'industry' | 'service' | 'audit' | 'marketplace') => void,
   currentPage: string,
   setSelectedIndustry?: (data: IndustryData) => void,
   setSelectedService?: (data: ServiceData) => void
@@ -311,6 +311,7 @@ const Header = ({
             </AnimatePresence>
           </div>
 
+          <NavLink href="#" onClick={() => setCurrentPage('marketplace')}>Marketplace</NavLink>
           <NavLink href="#" onClick={() => setCurrentPage('about')}>About Us</NavLink>
           <NavLink href="#" onClick={() => setCurrentPage('process')}>Our Process</NavLink>
           <NavLink href="#" onClick={() => setCurrentPage('success')}>Success Stories</NavLink>
@@ -497,6 +498,136 @@ const Footer = ({ setCurrentPage, onLogoClick }: { setCurrentPage: (p: 'home' | 
   </footer>
 );
 
+const MarketplacePage = ({ 
+  filteredSolutions, 
+  setSelectedSolution, 
+  searchQuery, 
+  handleSearch, 
+  handleQuickSearch 
+}: { 
+  filteredSolutions: Solution[], 
+  setSelectedSolution: (s: Solution) => void,
+  searchQuery: string,
+  handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void,
+  handleQuickSearch: (tag: string) => void
+}) => {
+  const categories = ["All", "Sales", "Marketing", "Support", "Operations", "Creative", "Finance", "Legal", "Technology", "Healthcare", "Education"];
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  const finalSolutions = useMemo(() => {
+    let results = filteredSolutions;
+    if (activeCategory !== "All") {
+      results = results.filter(s => s.category === activeCategory);
+    }
+    return results;
+  }, [filteredSolutions, activeCategory]);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="pt-12"
+    >
+      {/* Hero Section */}
+      <section className="bg-ilogic-gray py-20 lg:py-28 relative overflow-hidden">
+        <div className="container-custom relative z-10">
+          <div className="max-w-3xl">
+            <span className="text-ilogic-blue font-bold uppercase tracking-[0.2em] text-sm mb-4 block">AI Marketplace</span>
+            <h1 className="text-4xl md:text-7xl font-display font-bold text-slate-900 mb-8 leading-tight">
+              Everything AI can do for your <span className="text-ilogic-blue">Business.</span>
+            </h1>
+            <p className="text-slate-600 text-xl mb-10 leading-relaxed">
+              Browse our extensive library of ready-to-deploy AI solutions. From copywriting to complex data analysis, we have the tools to scale your operations.
+            </p>
+            
+            {/* Search Bar */}
+            <div className="relative max-w-2xl group">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-ilogic-blue transition-colors" size={24} />
+              <input 
+                type="text" 
+                placeholder="Search for a solution (e.g. 'Email Design', 'Copywriting')..." 
+                value={searchQuery}
+                onChange={handleSearch}
+                className="w-full pl-16 pr-6 py-6 bg-white border border-slate-200 rounded-3xl shadow-xl shadow-slate-200/50 outline-none focus:ring-4 focus:ring-ilogic-blue/10 focus:border-ilogic-blue transition-all text-lg"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-ilogic-blue/5 -skew-x-12 translate-x-1/4"></div>
+      </section>
+
+      {/* Categories & Grid */}
+      <section className="py-24 bg-white">
+        <div className="container-custom">
+          {/* Category Filter */}
+          <div className="flex flex-wrap gap-3 mb-12">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all ${
+                  activeCategory === cat 
+                    ? "bg-ilogic-blue text-white shadow-lg shadow-ilogic-blue/20" 
+                    : "bg-ilogic-gray text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Solutions Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <AnimatePresence mode="popLayout">
+              {finalSolutions.map((solution) => (
+                <motion.div
+                  key={solution.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  whileHover={{ y: -8 }}
+                >
+                  <SolutionCard 
+                    solution={solution} 
+                    onOpenDemo={setSelectedSolution} 
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+
+          {finalSolutions.length === 0 && (
+            <div className="text-center py-24">
+              <div className="w-20 h-20 bg-ilogic-gray rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search size={32} className="text-slate-300" />
+              </div>
+              <h3 className="text-2xl font-display font-bold text-slate-900 mb-2">No solutions found</h3>
+              <p className="text-slate-500">Try a different search term or category.</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 bg-ilogic-blue">
+        <div className="container-custom text-center">
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-8">Don't see what you're looking for?</h2>
+          <p className="text-blue-100 text-xl mb-12 max-w-2xl mx-auto">
+            We build custom AI architectures tailored to your specific business needs. Let's discuss your project.
+          </p>
+          <button 
+            onClick={() => handleQuickSearch('')}
+            className="bg-white text-ilogic-blue px-12 py-5 rounded-2xl font-bold text-xl hover:bg-blue-50 transition-all transform hover:scale-105 active:scale-95 shadow-2xl"
+          >
+            Book a Custom Consultation
+          </button>
+        </div>
+      </section>
+    </motion.div>
+  );
+};
+
 const HomePage = ({ 
   searchQuery, 
   handleSearch, 
@@ -671,7 +802,13 @@ const HomePage = ({
         )}
 
         <div className="mt-16 text-center">
-          <button className="inline-flex items-center gap-2 border-2 border-ilogic-blue text-ilogic-blue px-8 py-3.5 rounded-full font-bold hover:bg-ilogic-blue hover:text-white transition-all transform hover:scale-105 active:scale-95">
+          <button 
+            onClick={() => {
+              setCurrentPage('marketplace');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="inline-flex items-center gap-2 border-2 border-ilogic-blue text-ilogic-blue px-8 py-3.5 rounded-full font-bold hover:bg-ilogic-blue hover:text-white transition-all transform hover:scale-105 active:scale-95"
+          >
             Explore Marketplace <Globe size={20} />
           </button>
         </div>
@@ -1107,48 +1244,121 @@ const SuccessStoriesPage = ({ setCurrentPage, getImg }: { setCurrentPage: (p: an
   );
 };
 
-const ContactPage = () => (
-  <motion.div 
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    className="pt-12"
-  >
-    <section className="bg-ilogic-gray py-24 lg:py-32">
-      <div className="container-custom text-center">
-        <h1 className="text-4xl md:text-6xl font-display font-bold text-slate-900 mb-8">Get in Touch</h1>
-        <p className="text-slate-600 text-lg max-w-2xl mx-auto mb-12">
-          Ready to transform your business with AI? Let's discuss your project.
-        </p>
-        <div className="max-w-xl mx-auto bg-white p-10 rounded-3xl shadow-xl border border-slate-100">
-           <form className="flex flex-col gap-6 text-left">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Full Name</label>
-                <input required type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all" placeholder="John Doe" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Work Email</label>
-                <input required type="email" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all" placeholder="john@company.com" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Message</label>
-                <textarea className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all h-32 resize-none" placeholder="Tell us about your project..."></textarea>
-              </div>
-              <button type="submit" className="w-full py-4 bg-ilogic-blue text-white font-bold rounded-xl hover:bg-blue-800 transition-all shadow-lg shadow-ilogic-blue/20">
-                Send Message
-              </button>
-           </form>
+const ContactPage = () => {
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const object = Object.fromEntries(formData);
+    const json = JSON.stringify(object);
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: json
+      });
+      const result = await response.json();
+      if (result.success) {
+        setIsSubmitted(true);
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      alert("There was an error sending your message. Please try again.");
+    }
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="pt-12"
+    >
+      <section className="bg-ilogic-gray py-24 lg:py-32">
+        <div className="container-custom text-center">
+          <h1 className="text-4xl md:text-6xl font-display font-bold text-slate-900 mb-8">Get in Touch</h1>
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto mb-12">
+            Ready to transform your business with AI? Let's discuss your project.
+          </p>
+          <div className="max-w-xl mx-auto bg-white p-10 rounded-3xl shadow-xl border border-slate-100">
+            {!isSubmitted ? (
+              <form 
+                action="https://api.web3forms.com/submit" 
+                method="POST"
+                onSubmit={handleSubmit}
+                className="flex flex-col gap-6 text-left"
+              >
+                <input type="hidden" name="access_key" value="74ae6f89-a5ae-4aca-8532-2e711f2df794" />
+                <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }} />
+                
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Full Name</label>
+                  <input required name="name" type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all" placeholder="John Doe" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Work Email</label>
+                  <input required name="email" type="email" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all" placeholder="john@company.com" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Message</label>
+                  <textarea name="message" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all h-32 resize-none" placeholder="Tell us about your project..."></textarea>
+                </div>
+                <button type="submit" className="w-full py-4 bg-ilogic-blue text-white font-bold rounded-xl hover:bg-blue-800 transition-all shadow-lg shadow-ilogic-blue/20">
+                  Send Message
+                </button>
+              </form>
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-8"
+              >
+                <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle2 size={32} />
+                </div>
+                <h3 className="text-2xl font-display font-bold text-slate-900 mb-2">Message Received!</h3>
+                <p className="text-slate-600">
+                  Isaac from I-Logic AI will contact you shortly.
+                </p>
+              </motion.div>
+            )}
+          </div>
         </div>
-      </div>
-    </section>
-  </motion.div>
-);
+      </section>
+    </motion.div>
+  );
+};
 
 const AuditPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    const formData = new FormData(e.currentTarget);
+    const object = Object.fromEntries(formData);
+    const json = JSON.stringify(object);
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: json
+      });
+      const result = await response.json();
+      if (result.success) {
+        setIsSubmitted(true);
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      alert("There was an error sending your request. Please try again.");
+    }
   };
 
   return (
@@ -1178,10 +1388,18 @@ const AuditPage = () => {
 
         <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl shadow-slate-200/50 border border-slate-100">
           {!isSubmitted ? (
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form 
+              action="https://api.web3forms.com/submit" 
+              method="POST"
+              onSubmit={handleSubmit} 
+              className="space-y-8"
+            >
+              <input type="hidden" name="access_key" value="74ae6f89-a5ae-4aca-8532-2e711f2df794" />
+              <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }} />
+              
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-900 uppercase tracking-wider">What is your Industry?</label>
-                <select className="w-full px-6 py-4 bg-ilogic-gray border border-transparent focus:border-ilogic-blue focus:bg-white rounded-2xl outline-none transition-all appearance-none cursor-pointer">
+                <select name="industry" className="w-full px-6 py-4 bg-ilogic-gray border border-transparent focus:border-ilogic-blue focus:bg-white rounded-2xl outline-none transition-all appearance-none cursor-pointer">
                   <option>Real Estate</option>
                   <option>Legal</option>
                   <option>Healthcare</option>
@@ -1193,6 +1411,7 @@ const AuditPage = () => {
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-900 uppercase tracking-wider">How many hours a week does your team spend on manual tasks?</label>
                 <input 
+                  name="manual_hours"
                   type="text" 
                   placeholder="e.g. 20+ hours"
                   className="w-full px-6 py-4 bg-ilogic-gray border border-transparent focus:border-ilogic-blue focus:bg-white rounded-2xl outline-none transition-all"
@@ -1203,6 +1422,7 @@ const AuditPage = () => {
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-900 uppercase tracking-wider">What is your biggest bottleneck?</label>
                 <textarea 
+                  name="bottleneck"
                   placeholder="Describe the task that slows you down the most..."
                   className="w-full px-6 py-4 bg-ilogic-gray border border-transparent focus:border-ilogic-blue focus:bg-white rounded-2xl outline-none transition-all min-h-[120px] resize-none"
                   required
@@ -1212,6 +1432,7 @@ const AuditPage = () => {
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-900 uppercase tracking-wider">Your Email</label>
                 <input 
+                  name="email"
                   type="email" 
                   placeholder="name@company.com"
                   className="w-full px-6 py-4 bg-ilogic-gray border border-transparent focus:border-ilogic-blue focus:bg-white rounded-2xl outline-none transition-all"
@@ -1240,9 +1461,9 @@ const AuditPage = () => {
               <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8">
                 <CheckCircle2 size={40} />
               </div>
-              <h2 className="text-3xl font-display font-bold text-slate-900 mb-4">Audit Request Received!</h2>
+              <h2 className="text-3xl font-display font-bold text-slate-900 mb-4">Message Received!</h2>
               <p className="text-slate-600 mb-8">
-                Isaac is analyzing your answers. You'll receive your custom AI Opportunity Roadmap at your email within 24 hours.
+                Isaac from I-Logic AI will contact you shortly.
               </p>
               <button 
                 onClick={() => window.location.reload()}
@@ -1616,24 +1837,30 @@ const DemoModal = ({ solution, onClose }: { solution: Solution, onClose: () => v
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
+                action="https://api.web3forms.com/submit"
+                method="POST"
                 onSubmit={handleSubmit} 
                 className="flex flex-col gap-4"
               >
+                <input type="hidden" name="access_key" value="74ae6f89-a5ae-4aca-8532-2e711f2df794" />
+                <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }} />
+                <input type="hidden" name="subject" value={`New Inquiry for ${solution.title}`} />
+                
                 <p className="text-slate-600 text-sm mb-2">Let's talk about how we can deploy this solution for your specific needs.</p>
                 
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Full Name</label>
-                  <input required type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all" placeholder="John Doe" />
+                  <input required name="name" type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all" placeholder="John Doe" />
                 </div>
 
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Work Email</label>
-                  <input required type="email" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all" placeholder="john@company.com" />
+                  <input required name="email" type="email" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all" placeholder="john@company.com" />
                 </div>
 
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Message (Optional)</label>
-                  <textarea className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all h-24 resize-none" placeholder="Tell us about your project..."></textarea>
+                  <textarea name="message" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-ilogic-blue outline-none transition-all h-24 resize-none" placeholder="Tell us about your project..."></textarea>
                 </div>
 
                 <button 
@@ -1648,18 +1875,20 @@ const DemoModal = ({ solution, onClose }: { solution: Solution, onClose: () => v
                 key="success"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="flex-grow flex flex-col items-center justify-center text-center py-12"
+                className="text-center py-12"
               >
-                <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
+                <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8">
                   <CheckCircle2 size={40} />
                 </div>
-                <h5 className="text-xl font-display font-bold text-slate-900 mb-2">Inquiry Received!</h5>
-                <p className="text-slate-500 text-sm mb-8">One of our AI specialists will reach out to you within 24 hours.</p>
+                <h2 className="text-3xl font-display font-bold text-slate-900 mb-4">Message Received!</h2>
+                <p className="text-slate-600 mb-8">
+                  Isaac from I-Logic AI will contact you shortly.
+                </p>
                 <button 
                   onClick={onClose}
-                  className="text-ilogic-blue font-bold hover:underline"
+                  className="bg-ilogic-blue text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-800 transition-all"
                 >
-                  Back to Marketplace
+                  Close
                 </button>
               </motion.div>
             )}
@@ -1719,7 +1948,7 @@ const getServiceData = (name: string): ServiceData => {
 };
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'about' | 'process' | 'success' | 'contact' | 'industry' | 'service' | 'audit'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'about' | 'process' | 'success' | 'contact' | 'industry' | 'service' | 'audit' | 'marketplace'>('home');
   const [selectedIndustry, setSelectedIndustry] = useState<IndustryData>(getIndustryData('Real Estate'));
   const [selectedService, setSelectedService] = useState<ServiceData>(getServiceData('Custom Chatbots'));
   const [isScrolled, setIsScrolled] = useState(false);
@@ -1855,6 +2084,166 @@ export default function App() {
       author: "Built by I-Logic AI",
       description: "Engage potential buyers with AI-driven virtual property tours.",
       category: "Real Estate"
+    },
+    {
+      id: '7',
+      image: getImg('solution_7', "https://picsum.photos/seed/email/800/600"),
+      tag: "Creative",
+      title: "AI Email Designer & Template Generator",
+      rating: 4.9,
+      author: "Built by I-Logic AI",
+      description: "Generate high-converting, responsive email templates in seconds.",
+      category: "Marketing"
+    },
+    {
+      id: '8',
+      image: getImg('solution_8', "https://picsum.photos/seed/copy/800/600"),
+      tag: "Marketing",
+      title: "AI Copywriter for Ads & Blogs",
+      rating: 5.0,
+      author: "Built by I-Logic AI",
+      description: "Professional-grade copy for ads, blogs, and websites that actually sells.",
+      category: "Marketing"
+    },
+    {
+      id: '9',
+      image: getImg('solution_9', "https://picsum.photos/seed/video/800/600"),
+      tag: "Creative",
+      title: "AI Video Studio & Ad Generator",
+      rating: 4.8,
+      author: "Built by I-Logic AI",
+      description: "Turn text into engaging marketing videos and social ads automatically.",
+      category: "Creative"
+    },
+    {
+      id: '10',
+      image: getImg('solution_10', "https://picsum.photos/seed/voice/800/600"),
+      tag: "Creative",
+      title: "AI Voiceover Studio & Dubbing Hub",
+      rating: 4.9,
+      author: "Built by I-Logic AI",
+      description: "Studio-quality voiceovers and video dubbing in 50+ languages.",
+      category: "Creative"
+    },
+    {
+      id: '11',
+      image: getImg('solution_11', "https://picsum.photos/seed/logo/800/600"),
+      tag: "Creative",
+      title: "AI Logo & Brand Identity Suite",
+      rating: 4.7,
+      author: "Built by I-Logic AI",
+      description: "Instant brand identity, logos, and style guides for new ventures.",
+      category: "Creative"
+    },
+    {
+      id: '12',
+      image: getImg('solution_12', "https://picsum.photos/seed/social/800/600"),
+      tag: "Marketing",
+      title: "AI Social Media Manager & Growth Bot",
+      rating: 4.9,
+      author: "Built by I-Logic AI",
+      description: "Auto-generate, schedule, and engage with viral social content.",
+      category: "Marketing"
+    },
+    {
+      id: '13',
+      image: getImg('solution_13', "https://picsum.photos/seed/hr/800/600"),
+      tag: "Operations",
+      title: "AI HR Recruiter & Resume Screener",
+      rating: 4.8,
+      author: "Built by I-Logic AI",
+      description: "Screen thousands of resumes and interview candidates 24/7.",
+      category: "Operations"
+    },
+    {
+      id: '14',
+      image: getImg('solution_14', "https://picsum.photos/seed/inventory/800/600"),
+      tag: "Operations",
+      title: "AI Inventory & Demand Predictor",
+      rating: 4.9,
+      author: "Built by I-Logic AI",
+      description: "Stop overstocking with predictive demand modeling and smart alerts.",
+      category: "Operations"
+    },
+    {
+      id: '15',
+      image: getImg('solution_15', "https://picsum.photos/seed/sentiment/800/600"),
+      tag: "Data",
+      title: "AI Sentiment Tracker & Review Analyzer",
+      rating: 4.7,
+      author: "Built by I-Logic AI",
+      description: "Real-time analysis of customer feedback, reviews, and social mentions.",
+      category: "Data"
+    },
+    {
+      id: '16',
+      image: getImg('solution_16', "https://picsum.photos/seed/translate/800/600"),
+      tag: "Operations",
+      title: "AI Translation & Localization Hub",
+      rating: 4.9,
+      author: "Built by I-Logic AI",
+      description: "Localize your entire business, website, and docs for global markets.",
+      category: "Operations"
+    },
+    {
+      id: '17',
+      image: getImg('solution_17', "https://picsum.photos/seed/code/800/600"),
+      tag: "Technology",
+      title: "AI Code Assistant & Bug Hunter",
+      rating: 5.0,
+      author: "Built by I-Logic AI",
+      description: "Custom coding agents that write, test, and debug your software.",
+      category: "Technology"
+    },
+    {
+      id: '18',
+      image: getImg('solution_18', "https://picsum.photos/seed/assistant/800/600"),
+      tag: "Operations",
+      title: "AI Personal Executive Assistant",
+      rating: 4.8,
+      author: "Built by I-Logic AI",
+      description: "Manage your calendar, emails, and daily tasks effortlessly.",
+      category: "Operations"
+    },
+    {
+      id: '19',
+      image: getImg('solution_19', "https://picsum.photos/seed/audit/800/600"),
+      tag: "Finance",
+      title: "AI Financial Auditor & Fraud Detector",
+      rating: 4.9,
+      author: "Built by I-Logic AI",
+      description: "Detect anomalies, errors, and fraud in your financial records in real-time.",
+      category: "Finance"
+    },
+    {
+      id: '20',
+      image: getImg('solution_20', "https://picsum.photos/seed/supply/800/600"),
+      tag: "Operations",
+      title: "AI Supply Chain & Logistics Optimizer",
+      rating: 4.7,
+      author: "Built by I-Logic AI",
+      description: "Streamline logistics with intelligent routing and warehouse management.",
+      category: "Operations"
+    },
+    {
+      id: '21',
+      image: getImg('solution_21', "https://picsum.photos/seed/diagnose/800/600"),
+      tag: "Healthcare",
+      title: "AI Healthcare Diagnosis Assistant",
+      rating: 4.9,
+      author: "Built by I-Logic AI",
+      description: "Support clinical decisions with advanced pattern recognition and data.",
+      category: "Healthcare"
+    },
+    {
+      id: '22',
+      image: getImg('solution_22', "https://picsum.photos/seed/tutor/800/600"),
+      tag: "Education",
+      title: "AI Education Tutor & Training Bot",
+      rating: 4.8,
+      author: "Built by I-Logic AI",
+      description: "Personalized learning paths for students and corporate employees.",
+      category: "Education"
     }
   ];
 
@@ -1919,6 +2308,22 @@ export default function App() {
                 setCurrentPage={setCurrentPage}
                 setSelectedIndustry={setSelectedIndustry}
                 setSelectedService={setSelectedService}
+              />
+            </motion.div>
+          ) : currentPage === 'marketplace' ? (
+            <motion.div
+              key="marketplace"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              transition={{ duration: 0.3 }}
+            >
+              <MarketplacePage 
+                filteredSolutions={filteredSolutions}
+                setSelectedSolution={setSelectedSolution}
+                searchQuery={searchQuery}
+                handleSearch={handleSearch}
+                handleQuickSearch={handleQuickSearch}
               />
             </motion.div>
           ) : currentPage === 'about' ? (
