@@ -2032,7 +2032,7 @@ export default function App() {
     { icon: Cpu, title: "Technology" },
   ];
 
-  const allSolutions: Solution[] = [
+  const allSolutions: Solution[] = useMemo(() => [
     {
       id: '1',
       image: getImg('solution_1', "https://picsum.photos/seed/sales/800/600"),
@@ -2253,7 +2253,7 @@ export default function App() {
       description: "Personalized learning paths for students and corporate employees.",
       category: "Education"
     }
-  ];
+  ], [customImages]);
 
   const filteredSolutions = useMemo(() => {
     if (!searchQuery.trim()) return allSolutions;
@@ -2263,7 +2263,7 @@ export default function App() {
       s.category.toLowerCase().includes(query) ||
       s.tag.toLowerCase().includes(query)
     );
-  }, [searchQuery]);
+  }, [searchQuery, allSolutions]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -2455,16 +2455,37 @@ export default function App() {
                   {/* Solution Images */}
                   <div className="space-y-4">
                     <h3 className="font-bold text-ilogic-blue border-b pb-2">Marketplace Solutions</h3>
-                    {allSolutions.map((s, idx) => (
+                    {allSolutions.map((s) => (
                       <div key={s.id} className="space-y-2 p-4 bg-ilogic-gray rounded-2xl">
                         <label className="text-xs font-bold text-slate-500 uppercase">{s.title}</label>
                         <div className="flex gap-2">
                           <input 
                             type="text" 
-                            defaultValue={s.image}
-                            onBlur={(e) => updateImage(`solution_${s.id}`, e.target.value)}
+                            placeholder="Paste image URL here..."
                             className="flex-grow px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-ilogic-blue"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                updateImage(`solution_${s.id}`, e.currentTarget.value);
+                                e.currentTarget.blur();
+                              }
+                            }}
+                            onBlur={(e) => {
+                              if (e.target.value) {
+                                updateImage(`solution_${s.id}`, e.target.value);
+                              }
+                            }}
                           />
+                          <button 
+                            onClick={(e) => {
+                              const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                              if (input.value) {
+                                updateImage(`solution_${s.id}`, input.value);
+                              }
+                            }}
+                            className="bg-ilogic-blue text-white px-3 py-1 rounded-lg text-[10px] font-bold hover:bg-blue-800 transition-colors"
+                          >
+                            Save
+                          </button>
                           <img src={s.image} className="w-10 h-10 rounded object-cover border border-white" referrerPolicy="no-referrer" />
                         </div>
                       </div>
@@ -2484,10 +2505,31 @@ export default function App() {
                         <div className="flex gap-2">
                           <input 
                             type="text" 
-                            defaultValue={getImg(`story_${story.id}`, story.fallback)}
-                            onBlur={(e) => updateImage(`story_${story.id}`, e.target.value)}
+                            placeholder="Paste image URL here..."
                             className="flex-grow px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-ilogic-blue"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                updateImage(`story_${story.id}`, e.currentTarget.value);
+                                e.currentTarget.blur();
+                              }
+                            }}
+                            onBlur={(e) => {
+                              if (e.target.value) {
+                                updateImage(`story_${story.id}`, e.target.value);
+                              }
+                            }}
                           />
+                          <button 
+                            onClick={(e) => {
+                              const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                              if (input.value) {
+                                updateImage(`story_${story.id}`, input.value);
+                              }
+                            }}
+                            className="bg-ilogic-blue text-white px-3 py-1 rounded-lg text-[10px] font-bold hover:bg-blue-800 transition-colors"
+                          >
+                            Save
+                          </button>
                           <img src={getImg(`story_${story.id}`, story.fallback)} className="w-10 h-10 rounded object-cover border border-white" referrerPolicy="no-referrer" />
                         </div>
                       </div>
@@ -2502,10 +2544,31 @@ export default function App() {
                       <div className="flex gap-2">
                         <input 
                           type="text" 
-                          defaultValue={getImg('founder', "https://picsum.photos/seed/founder/800/1000")}
-                          onBlur={(e) => updateImage('founder', e.target.value)}
+                          placeholder="Paste image URL here..."
                           className="flex-grow px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-ilogic-blue"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              updateImage('founder', e.currentTarget.value);
+                              e.currentTarget.blur();
+                            }
+                          }}
+                          onBlur={(e) => {
+                            if (e.target.value) {
+                              updateImage('founder', e.target.value);
+                            }
+                          }}
                         />
+                        <button 
+                          onClick={(e) => {
+                            const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                            if (input.value) {
+                              updateImage('founder', input.value);
+                            }
+                          }}
+                          className="bg-ilogic-blue text-white px-3 py-1 rounded-lg text-[10px] font-bold hover:bg-blue-800 transition-colors"
+                        >
+                          Save
+                        </button>
                         <img src={getImg('founder', "https://picsum.photos/seed/founder/800/1000")} className="w-10 h-10 rounded object-cover border border-white" referrerPolicy="no-referrer" />
                       </div>
                     </div>
@@ -2514,10 +2577,31 @@ export default function App() {
                       <div className="flex gap-2">
                         <input 
                           type="text" 
-                          defaultValue={getImg('process_tech', "https://picsum.photos/seed/tech/800/600")}
-                          onBlur={(e) => updateImage('process_tech', e.target.value)}
+                          placeholder="Paste image URL here..."
                           className="flex-grow px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-ilogic-blue"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              updateImage('process_tech', e.currentTarget.value);
+                              e.currentTarget.blur();
+                            }
+                          }}
+                          onBlur={(e) => {
+                            if (e.target.value) {
+                              updateImage('process_tech', e.target.value);
+                            }
+                          }}
                         />
+                        <button 
+                          onClick={(e) => {
+                            const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                            if (input.value) {
+                              updateImage('process_tech', input.value);
+                            }
+                          }}
+                          className="bg-ilogic-blue text-white px-3 py-1 rounded-lg text-[10px] font-bold hover:bg-blue-800 transition-colors"
+                        >
+                          Save
+                        </button>
                         <img src={getImg('process_tech', "https://picsum.photos/seed/tech/800/600")} className="w-10 h-10 rounded object-cover border border-white" referrerPolicy="no-referrer" />
                       </div>
                     </div>
