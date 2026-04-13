@@ -34,7 +34,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { db } from './firebase';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 
 // --- Types ---
 
@@ -311,7 +311,6 @@ const Header = ({
             </AnimatePresence>
           </div>
 
-          <NavLink href="#" onClick={() => setCurrentPage('marketplace')}>Marketplace</NavLink>
           <NavLink href="#" onClick={() => setCurrentPage('about')}>About Us</NavLink>
           <NavLink href="#" onClick={() => setCurrentPage('process')}>Our Process</NavLink>
           <NavLink href="#" onClick={() => setCurrentPage('success')}>Success Stories</NavLink>
@@ -1996,8 +1995,17 @@ export default function App() {
   };
 
   const updateImage = async (key: string, url: string) => {
-    const newImages = { ...customImages, [key]: url };
-    await setDoc(doc(db, 'config', 'app'), { images: newImages }, { merge: true });
+    try {
+      await updateDoc(doc(db, 'config', 'app'), {
+        [`images.${key}`]: url
+      });
+    } catch (error) {
+      console.error("Error updating image:", error);
+      // Fallback if document doesn't exist
+      await setDoc(doc(db, 'config', 'app'), { 
+        images: { [key]: url } 
+      }, { merge: true });
+    }
   };
 
   useEffect(() => {
